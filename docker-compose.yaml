@@ -21,8 +21,11 @@ services:
       - "3000:3000"
     environment:
       - PORT=3000
+      - JEAGER_ENDPOINT=http://jaeger:14268/api/traces
     depends_on:
       - jaeger
+    networks:
+      - jaeger-example
 networks:
   jaeger-example:
   # adminer:
