@@ -6,3 +6,13 @@ GET http://localhost:3000/status HTTP/1.1
 GET http://localhost:3000/get-todo HTTP/1.1
 
 ###
+
+### ------------- services B ----------------
+
+GET http://localhost:3001/ping HTTP/1.1
+
+###
+
+GET http://localhost:3001/todo HTTP/1.1
+
+###

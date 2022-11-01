@@ -22,6 +22,21 @@ services:
     environment:
       - PORT=3000
       - JEAGER_ENDPOINT=http://jaeger:14268/api/traces
+      - SRV_B_ENDPOINT=http://srv-b:3000
+    depends_on:
+      - jaeger
+    networks:
+      - jaeger-example
+  srv-b:
+    image: cosmtrek/air
+    working_dir: /project
+    volumes:
+      - ./services/b:/project/
+    ports:
+      - "3001:3000"
+    environment:
+      - PORT=3000
+      - JEAGER_ENDPOINT=http://jaeger:14268/api/traces
     depends_on:
       - jaeger
     networks:

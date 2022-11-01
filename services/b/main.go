@@ -1,20 +1,16 @@
 package main
 
 import (
-	"encoding/json"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
 
 	"github.com/gin-gonic/gin"
-	"github.com/tayalone/go-otel-jaeger/services/a/tracing"
+	"github.com/tayalone/go-otel-jaeger/services/b/tracing"
 	"go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/propagation"
 )
-
-// var tracer = otel.Tracer("gin-server")
 
 func main() {
 	tp, tpErr := tracing.JaegerProvider()
@@ -27,41 +23,37 @@ func main() {
 
 	r := gin.Default()
 
-	r.Use(otelgin.Middleware("a-service"))
+	r.Use(otelgin.Middleware("b-service"))
 
-	r.GET("/status", func(c *gin.Context) {
+	r.GET("/ping", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
-			"message": "pong",
+			"message": "pong srv-b",
 		})
 	})
 
-	r.GET("/get-todo", func(ctx *gin.Context) {
-		// _, span := tracer.Start(ctx.Request.Context(), "getTodo")
-		// defer span.End()
+	r.GET("/todo", func(ctx *gin.Context) {
+		tracer := otel.Tracer("gin-server")
+		_, span := tracer.Start(ctx.Request.Context(), "getTodo")
+		defer span.End()
 
-		srvBEp := os.Getenv("SRV_B_ENDPOINT")
-
-		response, err := http.Get(srvBEp + "/todo")
-		if err != nil {
-			ctx.JSON(http.StatusInternalServerError, gin.H{
-				"message": "call api fail",
-			})
-		}
-
-		responseData, err := ioutil.ReadAll(response.Body)
-
-		type respStuct struct {
+		type todoStuct struct {
 			UserID uint   `json:"userId"`
 			ID     uint   `json:"id"`
 			Title  string `json:"title"`
 			Body   string `json:"body"`
 		}
 
-		var respObj respStuct
-		json.Unmarshal(responseData, &respObj)
-
+		todo := todoStuct{
+			UserID: 1,
+			ID:     1,
+			Title:  "sunt aut facere repellat provident occaecati excepturi optio reprehenderit",
+			Body:   "quia et suscipit suscipit recusandae consequuntur expedita et cum reprehenderit molestiae ut ut quas totam nostrum rerum est autem sunt rem eveniet architecto",
+		}
 		ctx.JSON(http.StatusOK, gin.H{
-			"todo": respObj,
+			"userId": todo.UserID,
+			"id":     todo.ID,
+			"title":  todo.Title,
+			"body":   todo.Body,
 		})
 	})
 
