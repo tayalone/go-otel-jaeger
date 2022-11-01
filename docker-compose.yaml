@@ -1,0 +1,24 @@
+version: "3.9"
+
+services:
+  jaeger:
+    image: jaegertracing/all-in-one:latest
+    environment:
+      - COLLECTOR_ZIPKIN_HOST_PORT=:9411
+      - COLLECTOR_OTLP_ENABLED=true
+    ports:
+      - "9411:9411"
+      - "16686:16686"
+      - "14268:14268"
+    networks:
+      - jaeger-example
+
+networks:
+  jaeger-example:
+  # adminer:
+  #   image: adminer
+  #   restart: always
+  #   ports:
+  #     - 8080:8080
+  #   depends_on:
+  #     - rdb
