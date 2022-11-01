@@ -12,7 +12,17 @@ services:
       - "14268:14268"
     networks:
       - jaeger-example
-
+  srv-a:
+    image: cosmtrek/air
+    working_dir: /project
+    volumes:
+      - ./services/a:/project/
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+    depends_on:
+      - jaeger
 networks:
   jaeger-example:
   # adminer:
